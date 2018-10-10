@@ -16,71 +16,79 @@ export class GenericDatasource {
     }
   }
 
-  query(options) {
-    var query = this.buildQueryParameters(options);
-    query.targets = query.targets.filter(t => !t.hide);
+// http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
 
-    if (query.targets.length <= 0) {
-      return this.q.when({data: []});
-    }
-
-    if (this.templateSrv.getAdhocFilters) {
-      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-    } else {
-      query.adhocFilters = [];
-    }
-
-    return this.doRequest({
-      url: this.url + '/query',
-      data: query,
-      method: 'POST'
+  dataset(target, response) {
+    var data = [];
+    _.each(response.data, p => {
+        data.push([p.ts, p.value])
     });
+    return {
+        target: target,
+        datapoints: data 
+    };
+  }
+
+  get_dataset(target) {
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        url: this.url + target,
+        method: 'GET'
+    }
+
+    return new Promise( (RSLV, REJ) => {
+        this.backend.datasourceRequest(
+            backend_request).then(rsp => {
+                return RSLV(dataset(target, rsp);
+            })
+    );
+  }
+  
+  query(options) {
+    var targets = _.filter(options.targets, t => {
+        return t.target != 'select metric'
+    })
+    targets = targets.filter(t => !t.hide);
+    if (targets === undefined || targets.length == 0) {
+        return Promise.resolve({data: []});
+    }
+
+//    if (this.templateSrv.getAdhocFilters) {
+//      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
+//    } else {
+//      query.adhocFilters = [];
+//    }
+
+    return new Promise( (RSLV, REJ) => {
+        response = [],
+        _.each(targets, t => { response.push(get_dataset(t)); });
+        return RSLV(response);
+    };
   }
 
   testDatasource() {
     return this.doRequest({
-      url: this.url + '/',
+      url: this.url + '/esmond/perfsonar/',
       method: 'GET',
     }).then(response => {
       if (response.status === 200) {
-        return { status: "success", message: "Data source is working", title: "Success" };
+        return {
+            status: "success",
+            message: "Data source is working",
+            title: "Success" };
       }
     });
   }
 
   annotationQuery(options) {
-    var query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
-    var annotationQuery = {
-      range: options.range,
-      annotation: {
-        name: options.annotation.name,
-        datasource: options.annotation.datasource,
-        enable: options.annotation.enable,
-        iconColor: options.annotation.iconColor,
-        query: query
-      },
-      rangeRaw: options.rangeRaw
-    };
-
-    return this.doRequest({
-      url: this.url + '/annotations',
-      method: 'POST',
-      data: annotationQuery
-    }).then(result => {
-      return result.data;
-    });
+    return Promise.resolve([]);
   }
 
   metricFindQuery(query) {
-    var interpolated = {
-        target: this.templateSrv.replace(query, null, 'regex')
-    };
-
-    return this.doRequest({
-      url: this.url + '/search',
-      data: interpolated,
-      method: 'POST',
-    }).then(this.mapToTextValue);
+    return Promise.resolve(
+       [{text: "aaaa", value: "aaaa"}]
+    );
   }
 
   mapToTextValue(result) {
@@ -94,6 +102,7 @@ export class GenericDatasource {
     });
   }
 
+/*
   doRequest(options) {
     options.withCredentials = this.withCredentials;
     options.headers = this.headers;
@@ -120,29 +129,14 @@ export class GenericDatasource {
 
     return options;
   }
+*/
 
   getTagKeys(options) {
-    return new Promise((resolve, reject) => {
-      this.doRequest({
-        url: this.url + '/tag-keys',
-        method: 'POST',
-        data: options
-      }).then(result => {
-        return resolve(result.data);
-      });
-    });
+    return Promise.resolve([]);
   }
-
+ 
   getTagValues(options) {
-    return new Promise((resolve, reject) => {
-      this.doRequest({
-        url: this.url + '/tag-values',
-        method: 'POST',
-        data: options
-      }).then(result => {
-        return resolve(result.data);
-      });
-    });
+    return Promise.resolve([]);
   }
 
 }
