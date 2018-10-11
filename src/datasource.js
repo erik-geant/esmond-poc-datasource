@@ -115,7 +115,7 @@ targets = [
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url,
+        url: this.url + '/',
         method: 'GET'
     }
 console.log("**testDatasource");
