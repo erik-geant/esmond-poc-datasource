@@ -10,7 +10,10 @@ export class GenericDatasource {
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
     this.withCredentials = instanceSettings.withCredentials;
-    this.headers = {'Content-Type': 'application/json'};
+    this.headers = {
+        'Content-Type': 'application/json',
+        'X-Forwarded-For': ''
+    };
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
     }
@@ -98,7 +101,7 @@ targets = [
   testDatasource() {
     var backend_request = {
         withCredentials: this.withCredentials,
-//        headers: this.headers,
+        headers: this.headers,
         url: this.url,
         method: 'GET'
     }
