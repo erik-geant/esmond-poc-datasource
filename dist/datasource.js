@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7,7 +7,7 @@ exports.GenericDatasource = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _lodash = require("lodash");
+var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -20,15 +20,22 @@ var GenericDatasource = exports.GenericDatasource = function () {
     _classCallCheck(this, GenericDatasource);
 
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url + "/esmond/perfsonar/archive/" + instanceSettings.jsonData.measurementKey + "/";
+    var url = instanceSettings.url;
+    if (url) {
+      url = url.replace(/\/$/, '');
+    }
+    var key = instanceSettings.jsonData.measurementKey;
+    if (key) {
+      key = key.replace(/\/$/, '').replace(/^\//, '');
+    }
+    this.url = url + "/esmond/perfsonar/archive/" + key + "/";
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
     this.withCredentials = instanceSettings.withCredentials;
     this.headers = {
-      'Content-Type': 'application/json',
-      'X-Forwarded-For': ''
+      'Content-Type': 'application/json'
     };
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
@@ -37,8 +44,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
   // http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
 
+  // http://145.23.253.34/esmond/perfsonar/archive/248d16f1035f440aa1239d4a4bafd245/
+
+  // remove trailing slashes
+
   _createClass(GenericDatasource, [{
-    key: "dataset",
+    key: 'dataset',
     value: function dataset(target, response) {
       var data = [];
       _lodash2.default.each(response.data, function (p) {
@@ -50,10 +61,11 @@ var GenericDatasource = exports.GenericDatasource = function () {
       };
     }
   }, {
-    key: "get_dataset",
+    key: 'get_dataset',
     value: function get_dataset(options, target) {
       var _this = this;
 
+      target = target.replace(/\/$/, '').replace(/^\//, '');
       var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
@@ -73,7 +85,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
       //         });
     }
   }, {
-    key: "query",
+    key: 'query',
     value: function query(options) {
       var _this2 = this;
 
@@ -121,7 +133,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
       });
     }
   }, {
-    key: "testDatasource",
+    key: 'testDatasource',
     value: function testDatasource() {
       var backend_request = {
         withCredentials: this.withCredentials,
@@ -144,17 +156,17 @@ var GenericDatasource = exports.GenericDatasource = function () {
       });
     }
   }, {
-    key: "annotationQuery",
+    key: 'annotationQuery',
     value: function annotationQuery(options) {
       return Promise.resolve([]);
     }
   }, {
-    key: "metricFindQuery",
+    key: 'metricFindQuery',
     value: function metricFindQuery(query) {
       return Promise.resolve([{ text: "aaaa", value: "aaaa" }]);
     }
   }, {
-    key: "mapToTextValue",
+    key: 'mapToTextValue',
     value: function mapToTextValue(result) {
       return _lodash2.default.map(result.data, function (d, i) {
         if (d && d.text && d.value) {
@@ -196,12 +208,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
     */
 
   }, {
-    key: "getTagKeys",
+    key: 'getTagKeys',
     value: function getTagKeys(options) {
       return Promise.resolve([]);
     }
   }, {
-    key: "getTagValues",
+    key: 'getTagValues',
     value: function getTagValues(options) {
       return Promise.resolve([]);
     }
