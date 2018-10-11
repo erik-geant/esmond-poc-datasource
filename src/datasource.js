@@ -29,29 +29,44 @@ export class GenericDatasource {
     };
   }
 
-  get_dataset(target) {
+  get_dataset(options, target) {
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
         url: this.url + target,
         method: 'GET'
     }
-
-    return new Promise( (RSLV, REJ) => {
-        this.backend.datasourceRequest(
-            backend_request).then(rsp => {
-                return RSLV(dataset(target, rsp);
-            })
-    );
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => { return this.dataset(target, rsp); });
+//     
+//     
+//             backend_request).then(rsp => {
+//                 return RSLV(ds.dataset(target, rsp));
+//             })
+//         });
   }
   
   query(options) {
+
     var targets = _.filter(options.targets, t => {
-        return t.target != 'select metric'
-    })
+        return !t.type || t.type == 'timeserie'
+    });
     targets = targets.filter(t => !t.hide);
+
+    var _request_data = {
+        range: options.range,
+        interval: options.interval,
+        format: "json",
+        maxDataPoints: options.maxDataPoints,
+        targets: _.map(targets, t => { return t.target })
+    };
     if (targets === undefined || targets.length == 0) {
-        return Promise.resolve({data: []});
+        return new Promise( (res, rej) => {
+            return res({
+                _request: { data: _request_data},
+                data: []
+            });
+        });
     }
 
 //    if (this.templateSrv.getAdhocFilters) {
@@ -60,11 +75,15 @@ export class GenericDatasource {
 //      query.adhocFilters = [];
 //    }
 
-    return new Promise( (RSLV, REJ) => {
-        response = [],
-        _.each(targets, t => { response.push(get_dataset(t)); });
-        return RSLV(response);
-    };
+    var series_promises = _.map(targets, t => {
+        return this.get_dataset(_request_data, t.target)
+    });
+    return Promise.all(series_promises).then(series_data => {
+        return {
+            _request: { data: _request_data },
+            data: series_data
+        };
+    });
   }
 
   testDatasource() {

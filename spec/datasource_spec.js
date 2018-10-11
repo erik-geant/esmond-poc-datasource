@@ -20,31 +20,39 @@ describe('GenericDatasource', function() {
 
     it('should return the server results when a target is set', function(done) {
         ctx.backendSrv.datasourceRequest = function(request) {
-            return ctx.$q.when({
+            var response = {
                 _request: request,
                 data: [
-                    {
-                        target: 'X',
-                        datapoints: [1, 2, 3]
-                    }
-                ]
-            });
+                    { ts: 123, value: 12.22 },
+                    { ts: 234, value: 23.33 },
+                    { ts: 111, value: 11.11 },
+                    { ts: 0, value: 0 },
+                    { ts: 999, value: 0.999 }
+               ]
+            };
+            return ctx.$q.when(response);
         };
 
         ctx.templateSrv.replace = function(data) {
             return data;
         }
 
-        ctx.ds.query({targets: ['hits']}).then(function(result) {
-            expect(result._request.data.targets).to.have.length(1);
+        var query_targets = [
+            {target: 'target-name1', type: 'timeserie'},
+            {target: 'target-name2', type: 'timeserie'}
+        ]
+
+        ctx.ds.query({targets: query_targets}).then(function(result) {
+            expect(result._request.data.targets).to.have.length(2);
 
             var series = result.data[0];
-            expect(series.target).to.equal('X');
-            expect(series.datapoints).to.have.length(3);
+            expect(series.target).to.equal('target-name1');
+            expect(series.datapoints).to.have.length(5);
             done();
         });
     });
 
+/*
     it ('should return the metric results when a target is null', function(done) {
         ctx.backendSrv.datasourceRequest = function(request) {
             return ctx.$q.when({
@@ -99,7 +107,9 @@ describe('GenericDatasource', function() {
             done();
         });
     });
+*/
 
+/*
     it ('should return the metric results when the target is an empty string', function(done) {
         ctx.backendSrv.datasourceRequest = function(request) {
             return ctx.$q.when({
@@ -182,6 +192,7 @@ describe('GenericDatasource', function() {
             done();
         });
     });
+*/
 
     it ('should return data as text and as value', function(done) {
         var result = ctx.ds.mapToTextValue({data: ["zero", "one", "two"]});
@@ -234,6 +245,7 @@ describe('GenericDatasource', function() {
         done();
     });
 
+/*
     it('should support tag keys', function(done) {
         var data =  [{'type': 'string', 'text': 'One', 'key': 'one'}, {'type': 'string', 'text': 'two', 'key': 'Two'}];
 
@@ -277,5 +289,5 @@ describe('GenericDatasource', function() {
             done();
         });
     });
-
+*/
 });
