@@ -120,15 +120,19 @@ var GenericDatasource = exports.GenericDatasource = function () {
   }, {
     key: "testDatasource",
     value: function testDatasource() {
-      return this.doRequest({
-        url: this.url + '/esmond/perfsonar/',
+      var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        url: this.url,
         method: 'GET'
-      }).then(function (response) {
-        if (response.status === 200) {
+      };
+      return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
+        if (rsp.status === 200) {
           return {
             status: "success",
             message: "Data source is working",
-            title: "Success" };
+            title: "Success"
+          };
         }
       });
     }
