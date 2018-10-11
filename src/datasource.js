@@ -102,8 +102,12 @@ targets = [
         url: this.url,
         method: 'GET'
     }
+console.log("**testDatasource");
+console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
+console.log("datasourceRequest response");
+console.log(rsp);
             if (rsp.status === 200) {
                 return {
                     status: "success",
