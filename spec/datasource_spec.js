@@ -8,7 +8,12 @@ describe('GenericDatasource', function() {
         ctx.$q = Q;
         ctx.backendSrv = {};
         ctx.templateSrv = {};
-        ctx.ds = new Datasource({}, ctx.$q, ctx.backendSrv, ctx.templateSrv);
+        var jsonData = { measurementKey: '010646242f574ca3b1d191d9b563ceb1' }
+        ctx.ds = new Datasource(
+            {jsonData: jsonData},
+            ctx.$q,
+            ctx.backendSrv,
+            ctx.templateSrv);
     });
 
     it('should return an empty array when no targets are set', function(done) {
@@ -38,15 +43,15 @@ describe('GenericDatasource', function() {
         }
 
         var query_targets = [
-            {target: 'target-name1', type: 'timeserie'},
-            {target: 'target-name2', type: 'timeserie'}
+            {target: 'packet-count-sent/aggregations/3600', type: 'timeserie'},
+            {target: 'packet-count-sent/aggregations/86400', type: 'timeserie'}
         ]
 
         ctx.ds.query({targets: query_targets}).then(function(result) {
             expect(result._request.data.targets).to.have.length(2);
 
             var series = result.data[0];
-            expect(series.target).to.equal('target-name1');
+            expect(series.target).to.equal('packet-count-sent/aggregations/3600');
             expect(series.datapoints).to.have.length(5);
             done();
         });

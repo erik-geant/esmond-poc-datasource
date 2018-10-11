@@ -4,7 +4,7 @@ export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url;
+    this.url = instanceSettings.url + "/" + instanceSettings.jsonData.measurementKey;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -48,10 +48,10 @@ export class GenericDatasource {
   
   query(options) {
 
-    var targets = _.filter(options.targets, t => {
-        return !t.type || t.type == 'timeserie'
-    });
-    targets = targets.filter(t => !t.hide);
+   var targets = _.filter(options.targets, t => {
+       return !t.type || t.type == 'timeserie'
+   });
+   targets = targets.filter(t => !t.hide);
 
     var _request_data = {
         range: options.range,
@@ -68,6 +68,13 @@ export class GenericDatasource {
             });
         });
     }
+
+targets = [
+    { target: 'packet-count-sent/aggregations/3600' },
+    { target: 'packet-count-sent/aggregations/86400' }
+];
+
+
 
 //    if (this.templateSrv.getAdhocFilters) {
 //      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
