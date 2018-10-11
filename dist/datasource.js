@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -7,7 +7,7 @@ exports.GenericDatasource = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _lodash = require('lodash');
+var _lodash = require("lodash");
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -20,7 +20,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
     _classCallCheck(this, GenericDatasource);
 
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url;
+    this.url = instanceSettings.url + "/esmond/perfsonar/archive/" + instanceSettings.jsonData.measurementKey;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -32,81 +32,118 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }
   }
 
+  // http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
+
   _createClass(GenericDatasource, [{
-    key: 'query',
+    key: "dataset",
+    value: function dataset(target, response) {
+      var data = [];
+      _lodash2.default.each(response.data, function (p) {
+        data.push([p.ts, p.value]);
+      });
+      return {
+        target: target,
+        datapoints: data
+      };
+    }
+  }, {
+    key: "get_dataset",
+    value: function get_dataset(options, target) {
+      var _this = this;
+
+      var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        url: this.url + "/" + target,
+        method: 'GET'
+      };
+      console.log("*** get_dataset");
+      console.log(backend_request);
+      return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
+        return _this.dataset(target, rsp);
+      });
+      //     
+      //     
+      //             backend_request).then(rsp => {
+      //                 return RSLV(ds.dataset(target, rsp));
+      //             })
+      //         });
+    }
+  }, {
+    key: "query",
     value: function query(options) {
-      var query = this.buildQueryParameters(options);
-      query.targets = query.targets.filter(function (t) {
+      var _this2 = this;
+
+      var targets = _lodash2.default.filter(options.targets, function (t) {
+        return !t.type || t.type == 'timeserie';
+      });
+      targets = targets.filter(function (t) {
         return !t.hide;
       });
 
-      if (query.targets.length <= 0) {
-        return this.q.when({ data: [] });
+      var _request_data = {
+        range: options.range,
+        interval: options.interval,
+        format: "json",
+        maxDataPoints: options.maxDataPoints,
+        targets: _lodash2.default.map(targets, function (t) {
+          return t.target;
+        })
+      };
+      if (targets === undefined || targets.length == 0) {
+        return new Promise(function (res, rej) {
+          return res({
+            _request: { data: _request_data },
+            data: []
+          });
+        });
       }
 
-      if (this.templateSrv.getAdhocFilters) {
-        query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-      } else {
-        query.adhocFilters = [];
-      }
+      targets = [{ target: 'packet-count-sent/aggregations/3600' }, { target: 'packet-count-sent/aggregations/86400' }];
 
-      return this.doRequest({
-        url: this.url + '/query',
-        data: query,
-        method: 'POST'
+      //    if (this.templateSrv.getAdhocFilters) {
+      //      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
+      //    } else {
+      //      query.adhocFilters = [];
+      //    }
+
+      var series_promises = _lodash2.default.map(targets, function (t) {
+        return _this2.get_dataset(_request_data, t.target);
+      });
+      return Promise.all(series_promises).then(function (series_data) {
+        return {
+          _request: { data: _request_data },
+          data: series_data
+        };
       });
     }
   }, {
-    key: 'testDatasource',
+    key: "testDatasource",
     value: function testDatasource() {
       return this.doRequest({
-        url: this.url + '/',
+        url: this.url + '/esmond/perfsonar/',
         method: 'GET'
       }).then(function (response) {
         if (response.status === 200) {
-          return { status: "success", message: "Data source is working", title: "Success" };
+          return {
+            status: "success",
+            message: "Data source is working",
+            title: "Success" };
         }
       });
     }
   }, {
-    key: 'annotationQuery',
+    key: "annotationQuery",
     value: function annotationQuery(options) {
-      var query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
-      var annotationQuery = {
-        range: options.range,
-        annotation: {
-          name: options.annotation.name,
-          datasource: options.annotation.datasource,
-          enable: options.annotation.enable,
-          iconColor: options.annotation.iconColor,
-          query: query
-        },
-        rangeRaw: options.rangeRaw
-      };
-
-      return this.doRequest({
-        url: this.url + '/annotations',
-        method: 'POST',
-        data: annotationQuery
-      }).then(function (result) {
-        return result.data;
-      });
+      return Promise.resolve([]);
     }
   }, {
-    key: 'metricFindQuery',
+    key: "metricFindQuery",
     value: function metricFindQuery(query) {
-      var interpolated = {
-        target: this.templateSrv.replace(query, null, 'regex')
-      };
-
-      return this.doRequest({
-        url: this.url + '/search',
-        data: interpolated,
-        method: 'POST'
-      }).then(this.mapToTextValue);
+      return Promise.resolve([{ text: "aaaa", value: "aaaa" }]);
     }
   }, {
-    key: 'mapToTextValue',
+    key: "mapToTextValue",
     value: function mapToTextValue(result) {
       return _lodash2.default.map(result.data, function (d, i) {
         if (d && d.text && d.value) {
@@ -117,66 +154,45 @@ var GenericDatasource = exports.GenericDatasource = function () {
         return { text: d, value: d };
       });
     }
+
+    /*
+      doRequest(options) {
+        options.withCredentials = this.withCredentials;
+        options.headers = this.headers;
+    
+        return this.backendSrv.datasourceRequest(options);
+      }
+    
+      buildQueryParameters(options) {
+        //remove placeholder targets
+        options.targets = _.filter(options.targets, target => {
+          return target.target !== 'select metric';
+        });
+    
+        var targets = _.map(options.targets, target => {
+          return {
+            target: this.templateSrv.replace(target.target, options.scopedVars, 'regex'),
+            refId: target.refId,
+            hide: target.hide,
+            type: target.type || 'timeserie'
+          };
+        });
+    
+        options.targets = targets;
+    
+        return options;
+      }
+    */
+
   }, {
-    key: 'doRequest',
-    value: function doRequest(options) {
-      options.withCredentials = this.withCredentials;
-      options.headers = this.headers;
-
-      return this.backendSrv.datasourceRequest(options);
-    }
-  }, {
-    key: 'buildQueryParameters',
-    value: function buildQueryParameters(options) {
-      var _this = this;
-
-      //remove placeholder targets
-      options.targets = _lodash2.default.filter(options.targets, function (target) {
-        return target.target !== 'select metric';
-      });
-
-      var targets = _lodash2.default.map(options.targets, function (target) {
-        return {
-          target: _this.templateSrv.replace(target.target, options.scopedVars, 'regex'),
-          refId: target.refId,
-          hide: target.hide,
-          type: target.type || 'timeserie'
-        };
-      });
-
-      options.targets = targets;
-
-      return options;
-    }
-  }, {
-    key: 'getTagKeys',
+    key: "getTagKeys",
     value: function getTagKeys(options) {
-      var _this2 = this;
-
-      return new Promise(function (resolve, reject) {
-        _this2.doRequest({
-          url: _this2.url + '/tag-keys',
-          method: 'POST',
-          data: options
-        }).then(function (result) {
-          return resolve(result.data);
-        });
-      });
+      return Promise.resolve([]);
     }
   }, {
-    key: 'getTagValues',
+    key: "getTagValues",
     value: function getTagValues(options) {
-      var _this3 = this;
-
-      return new Promise(function (resolve, reject) {
-        _this3.doRequest({
-          url: _this3.url + '/tag-values',
-          method: 'POST',
-          data: options
-        }).then(function (result) {
-          return resolve(result.data);
-        });
-      });
+      return Promise.resolve([]);
     }
   }]);
 
