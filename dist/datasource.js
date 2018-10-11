@@ -20,7 +20,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
     _classCallCheck(this, GenericDatasource);
 
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url + "/esmond/perfsonar/archive/" + instanceSettings.jsonData.measurementKey;
+    this.url = instanceSettings.url + "/esmond/perfsonar/archive/" + instanceSettings.jsonData.measurementKey + "/";
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -54,7 +54,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
       var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url + "/" + target,
+        url: this.url + target,
         method: 'GET'
       };
       console.log("*** get_dataset");
