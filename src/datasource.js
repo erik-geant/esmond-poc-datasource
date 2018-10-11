@@ -4,7 +4,15 @@ export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url + "/esmond/perfsonar/archive/" + instanceSettings.jsonData.measurementKey + "/";
+    var url = instanceSettings.url;
+    if (url) {
+        url = url.replace(/\/$/, '');
+    }
+    var key = instanceSettings.jsonData.measurementKey;
+    if (key) {
+        key = key.replace(/\/$/, '').replace(/^\//, '');
+    }
+    this.url = url + "/esmond/perfsonar/archive/" + key + "/";
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -12,7 +20,6 @@ export class GenericDatasource {
     this.withCredentials = instanceSettings.withCredentials;
     this.headers = {
         'Content-Type': 'application/json',
-        'X-Forwarded-For': ''
     };
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
@@ -20,6 +27,10 @@ export class GenericDatasource {
   }
 
 // http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
+
+// http://145.23.253.34/esmond/perfsonar/archive/248d16f1035f440aa1239d4a4bafd245/
+
+// remove trailing slashes
 
   dataset(target, response) {
     var data = [];
@@ -33,6 +44,8 @@ export class GenericDatasource {
   }
 
   get_dataset(options, target) {
+
+    target = target.replace(/\/$/, '').replace(/^\//, '');
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
