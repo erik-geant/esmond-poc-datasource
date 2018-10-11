@@ -98,7 +98,7 @@ targets = [
   testDatasource() {
     var backend_request = {
         withCredentials: this.withCredentials,
-        headers: this.headers,
+//        headers: this.headers,
         url: this.url,
         method: 'GET'
     }

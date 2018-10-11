@@ -122,7 +122,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
     value: function testDatasource() {
       var backend_request = {
         withCredentials: this.withCredentials,
-        headers: this.headers,
+        //        headers: this.headers,
         url: this.url,
         method: 'GET'
       };
