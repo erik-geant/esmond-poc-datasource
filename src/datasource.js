@@ -4,7 +4,7 @@ export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url + "/" + instanceSettings.jsonData.measurementKey;
+    this.url = instanceSettings.url + "/esmond/perfsonar/archive/" + instanceSettings.jsonData.measurementKey;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -33,9 +33,11 @@ export class GenericDatasource {
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url + target,
+        url: this.url + "/" + target,
         method: 'GET'
     }
+console.log("*** get_dataset");
+console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => { return this.dataset(target, rsp); });
 //     
