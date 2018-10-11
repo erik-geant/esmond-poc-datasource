@@ -96,16 +96,21 @@ targets = [
   }
 
   testDatasource() {
-    return this.doRequest({
-      url: this.url + '/esmond/perfsonar/',
-      method: 'GET',
-    }).then(response => {
-      if (response.status === 200) {
-        return {
-            status: "success",
-            message: "Data source is working",
-            title: "Success" };
-      }
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        url: this.url,
+        method: 'GET'
+    }
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => {
+            if (rsp.status === 200) {
+                return {
+                    status: "success",
+                    message: "Data source is working",
+                    title: "Success"
+                };
+        }
     });
   }
 
