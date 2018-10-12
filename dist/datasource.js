@@ -89,6 +89,9 @@ var GenericDatasource = exports.GenericDatasource = function () {
         value: function query(options) {
             var _this2 = this;
 
+            console.log("query options***");
+            console.log(options);
+
             var targets = _lodash2.default.filter(options.targets, function (t) {
                 return !t.type || t.type == 'timeserie';
             });
@@ -113,8 +116,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
                     });
                 });
             }
-
-            targets = [{ target: 'packet-count-sent/aggregations/3600' }, { target: 'packet-count-sent/aggregations/86400' }];
 
             //    if (this.templateSrv.getAdhocFilters) {
             //      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
@@ -143,8 +144,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 url: this.url + "/esmond/perfsonar//",
                 method: 'GET'
             };
-            console.log("TEST bsckend_request");
-            console.log(backend_request);
             return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
                 if (rsp.status === 200) {
                     return {

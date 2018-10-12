@@ -66,6 +66,9 @@ console.log(backend_request);
   
   query(options) {
 
+console.log("query options***");
+console.log(options);
+
    var targets = _.filter(options.targets, t => {
        return !t.type || t.type == 'timeserie'
    });
@@ -86,12 +89,6 @@ console.log(backend_request);
             });
         });
     }
-
-targets = [
-    { target: 'packet-count-sent/aggregations/3600' },
-    { target: 'packet-count-sent/aggregations/86400' }
-];
-
 
 
 //    if (this.templateSrv.getAdhocFilters) {
@@ -120,8 +117,6 @@ targets = [
         url: this.url + "/esmond/perfsonar//",
         method: 'GET'
     }
-console.log("TEST bsckend_request");
-console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
             if (rsp.status === 200) {
