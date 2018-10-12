@@ -45,7 +45,6 @@ export class GenericDatasource {
 
   get_dataset(options, target) {
 
-    target = target.replace(/\/$/, '').replace(/^\//, '');
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,

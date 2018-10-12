@@ -65,7 +65,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
         value: function get_dataset(options, target) {
             var _this = this;
 
-            target = target.replace(/\/$/, '').replace(/^\//, '');
             var backend_request = {
                 withCredentials: this.withCredentials,
                 headers: this.headers,
