@@ -140,7 +140,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 headers: this.headers,
                 // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
                 //        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
-                url: this.url = "/esmond/perfsonar/archive//",
+                url: this.url = "/esmond/perfsonar//",
                 method: 'GET'
             };
             return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
