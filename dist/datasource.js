@@ -44,29 +44,22 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }
 
     // http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
-
     // http://145.23.253.34/esmond/perfsonar/archive/248d16f1035f440aa1239d4a4bafd245/
     // http://145.23.253.34/esmond/perfsonar/archive/4187d2d6f4344491be2962b509c57f83/throughput/averages/86400
+    //http://145.23.253.34/esmond/perfsonar/archive/
 
     _createClass(GenericDatasource, [{
         key: 'dataset',
         value: function dataset(target, response) {
 
-            console.log("### handling dataset response");
-            console.log("target");
-            console.log(target);
-            console.log("response");
-            console.log(response);
             var data = [];
             _lodash2.default.each(response.data, function (p) {
                 data.push([p.val, 1000 * p.ts]);
             });
-            var result = {
+            return {
                 target: target,
                 datapoints: data
             };
-            console.log(result);
-            return result;
         }
     }, {
         key: 'get_dataset',
@@ -79,25 +72,14 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 url: this.url + target,
                 method: 'GET'
             };
-            console.log("*** get_dataset");
-            console.log(backend_request);
             return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
                 return _this.dataset(target, rsp);
             });
-            //     
-            //     
-            //             backend_request).then(rsp => {
-            //                 return RSLV(ds.dataset(target, rsp));
-            //             })
-            //         });
         }
     }, {
         key: 'query',
         value: function query(options) {
             var _this2 = this;
-
-            console.log("query options***");
-            console.log(options);
 
             var targets = _lodash2.default.filter(options.targets, function (t) {
                 return !t.type || t.type == 'timeserie';
@@ -195,9 +177,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
                         }
                     });
                 });
-                console.log(metrics);
                 return metrics;
-                //http://145.23.253.34/esmond/perfsonar/archive/
             });
         }
     }, {
