@@ -4,83 +4,147 @@ export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
-    this.url = instanceSettings.url;
+    var url = instanceSettings.url;
+    if (url) {
+        url = url.replace(/\/$/, '');
+    }
+    this.url = url;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
     this.withCredentials = instanceSettings.withCredentials;
-    this.headers = {'Content-Type': 'application/json'};
+    this.headers = {
+        'Content-Type': 'application/json',
+    };
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
     }
   }
 
+// http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
+// http://145.23.253.34/esmond/perfsonar/archive/248d16f1035f440aa1239d4a4bafd245/
+// http://145.23.253.34/esmond/perfsonar/archive/4187d2d6f4344491be2962b509c57f83/throughput/averages/86400
+//http://145.23.253.34/esmond/perfsonar/archive/
+
+  dataset(target, response) {
+
+    var data = [];
+    _.each(response.data, p => {
+        data.push([p.val, 1000 * p.ts])
+    });
+    return {
+        target: target,
+        datapoints: data 
+    };
+  }
+
+  get_dataset(options, target) {
+
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        url: this.url + target,
+        method: 'GET'
+    }
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => { return this.dataset(target, rsp); });
+  }
+  
   query(options) {
-    var query = this.buildQueryParameters(options);
-    query.targets = query.targets.filter(t => !t.hide);
 
-    if (query.targets.length <= 0) {
-      return this.q.when({data: []});
+   var targets = _.filter(options.targets, t => {
+       return !t.type || t.type == 'timeserie'
+   });
+   targets = targets.filter(t => !t.hide);
+
+    var _request_data = {
+        range: options.range,
+        interval: options.interval,
+        format: "json",
+        maxDataPoints: options.maxDataPoints,
+        targets: _.map(targets, t => { return t.target })
+    };
+    if (targets === undefined || targets.length == 0) {
+        return new Promise( (res, rej) => {
+            return res({
+                _request: { data: _request_data},
+                data: []
+            });
+        });
     }
 
-    if (this.templateSrv.getAdhocFilters) {
-      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-    } else {
-      query.adhocFilters = [];
-    }
 
-    return this.doRequest({
-      url: this.url + '/query',
-      data: query,
-      method: 'POST'
+//    if (this.templateSrv.getAdhocFilters) {
+//      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
+//    } else {
+//      query.adhocFilters = [];
+//    }
+
+    var series_promises = _.map(targets, t => {
+        return this.get_dataset(_request_data, t.target)
+    });
+    return Promise.all(series_promises).then(series_data => {
+        return {
+            _request: { data: _request_data },
+            data: series_data
+        };
     });
   }
 
   testDatasource() {
-    return this.doRequest({
-      url: this.url + '/',
-      method: 'GET',
-    }).then(response => {
-      if (response.status === 200) {
-        return { status: "success", message: "Data source is working", title: "Success" };
-      }
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
+        url: this.url + "/esmond/perfsonar//",
+        method: 'GET'
+    }
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => {
+            if (rsp.status === 200) {
+                return {
+                    status: "success",
+                    message: "Data source is working",
+                    title: "Success"
+                 };
+        }
     });
   }
 
   annotationQuery(options) {
-    var query = this.templateSrv.replace(options.annotation.query, {}, 'glob');
-    var annotationQuery = {
-      range: options.range,
-      annotation: {
-        name: options.annotation.name,
-        datasource: options.annotation.datasource,
-        enable: options.annotation.enable,
-        iconColor: options.annotation.iconColor,
-        query: query
-      },
-      rangeRaw: options.rangeRaw
-    };
-
-    return this.doRequest({
-      url: this.url + '/annotations',
-      method: 'POST',
-      data: annotationQuery
-    }).then(result => {
-      return result.data;
-    });
+    return Promise.resolve([]);
   }
 
   metricFindQuery(query) {
-    var interpolated = {
-        target: this.templateSrv.replace(query, null, 'regex')
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
+        url: this.url + "/esmond/perfsonar/archive//",
+        method: 'GET'
     };
-
-    return this.doRequest({
-      url: this.url + '/search',
-      data: interpolated,
-      method: 'POST',
-    }).then(this.mapToTextValue);
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => {
+            if (rsp.status !== 200) {
+                return undefined;
+            }
+            var ts_types = ["throughput", "packet-count-sent", "packet-count-lost"];
+            var metrics = [];
+            _.each(rsp.data, m => {
+                _.each(m["event-types"], t => {
+                    if (ts_types.includes(t["event-type"])) {
+                        _.each(t.summaries, s => {
+                            metrics.push({
+                                text: m.destination + ", " + t["event-type"] + " [" + s["summary-window"] + "]",
+                                value: s.uri
+                            });
+                        });
+                    }
+                });
+            });
+            return metrics;
+        });
   }
 
   mapToTextValue(result) {
@@ -94,6 +158,7 @@ export class GenericDatasource {
     });
   }
 
+/*
   doRequest(options) {
     options.withCredentials = this.withCredentials;
     options.headers = this.headers;
@@ -120,29 +185,14 @@ export class GenericDatasource {
 
     return options;
   }
+*/
 
   getTagKeys(options) {
-    return new Promise((resolve, reject) => {
-      this.doRequest({
-        url: this.url + '/tag-keys',
-        method: 'POST',
-        data: options
-      }).then(result => {
-        return resolve(result.data);
-      });
-    });
+    return Promise.resolve([]);
   }
-
+ 
   getTagValues(options) {
-    return new Promise((resolve, reject) => {
-      this.doRequest({
-        url: this.url + '/tag-values',
-        method: 'POST',
-        data: options
-      }).then(result => {
-        return resolve(result.data);
-      });
-    });
+    return Promise.resolve([]);
   }
 
 }
