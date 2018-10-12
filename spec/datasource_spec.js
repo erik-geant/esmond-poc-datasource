@@ -232,7 +232,7 @@ describe('GenericDatasource', function() {
             var uri = "/esmond/perfsonar/archive/25799ddc29344e6c96d728a5830ac24e/throughput/averages/86400";
             var sumwin = "86400";
             var type = "throughput";
-            expect(result[0].text).to.equal(dest + ",, " + type + " [" + sumwin + "]");
+            expect(result[0].text).to.equal(dest + ", " + type + " [" + sumwin + "]");
             expect(result[0].value).to.equal(uri);
             done();
         });
