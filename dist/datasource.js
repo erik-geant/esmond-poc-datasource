@@ -25,11 +25,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
             url = url.replace(/\/$/, '');
         }
         this.url = url;
-        var key = instanceSettings.jsonData.measurementKey;
-        if (key) {
-            key = key.replace(/\/$/, '').replace(/^\//, '');
-        }
-        this.measurementKey = key;
         this.name = instanceSettings.name;
         this.q = $q;
         this.backendSrv = backendSrv;
@@ -129,7 +124,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 withCredentials: this.withCredentials,
                 headers: this.headers,
                 // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
-                //        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
                 url: this.url + "/esmond/perfsonar//",
                 method: 'GET'
             };
@@ -155,7 +149,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
                 withCredentials: this.withCredentials,
                 headers: this.headers,
                 // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
-                //        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
                 url: this.url + "/esmond/perfsonar/archive//",
                 method: 'GET'
             };

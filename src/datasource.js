@@ -9,11 +9,6 @@ export class GenericDatasource {
         url = url.replace(/\/$/, '');
     }
     this.url = url;
-    var key = instanceSettings.jsonData.measurementKey;
-    if (key) {
-        key = key.replace(/\/$/, '').replace(/^\//, '');
-    }
-    this.measurementKey = key;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -102,7 +97,6 @@ export class GenericDatasource {
         withCredentials: this.withCredentials,
         headers: this.headers,
         // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
-//        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
         url: this.url + "/esmond/perfsonar//",
         method: 'GET'
     }
@@ -127,7 +121,6 @@ export class GenericDatasource {
         withCredentials: this.withCredentials,
         headers: this.headers,
         // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
-//        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
         url: this.url + "/esmond/perfsonar/archive//",
         method: 'GET'
     };

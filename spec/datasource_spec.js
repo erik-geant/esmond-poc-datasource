@@ -8,9 +8,8 @@ describe('GenericDatasource', function() {
         ctx.$q = Q;
         ctx.backendSrv = {};
         ctx.templateSrv = {};
-        var jsonData = { measurementKey: '010646242f574ca3b1d191d9b563ceb1' }
         ctx.ds = new Datasource(
-            {jsonData: jsonData},
+            {},
             ctx.$q,
             ctx.backendSrv,
             ctx.templateSrv);
