@@ -28,11 +28,11 @@ describe('GenericDatasource', function() {
             var response = {
                 _request: request,
                 data: [
-                    { ts: 123, value: 12.22 },
-                    { ts: 234, value: 23.33 },
-                    { ts: 111, value: 11.11 },
-                    { ts: 0, value: 0 },
-                    { ts: 999, value: 0.999 }
+                    { ts: 123, val: 12.22 },
+                    { ts: 234, val: 23.33 },
+                    { ts: 111, val: 11.11 },
+                    { ts: 0, val: 0 },
+                    { ts: 999, val: 0.999 }
                ]
             };
             return ctx.$q.when(response);
