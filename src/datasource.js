@@ -8,8 +8,6 @@ export class GenericDatasource {
     if (url) {
         url = url.replace(/\/$/, '');
     }
-console.log("instanceSettings.url: " + instanceSettings.url);
-console.log("url: " + url);
     this.url = url;
     var key = instanceSettings.jsonData.measurementKey;
     if (key) {
@@ -119,7 +117,7 @@ targets = [
         headers: this.headers,
         // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
 //        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
-        url: this.url = "/esmond/perfsonar//",
+        url: this.url + "/esmond/perfsonar//",
         method: 'GET'
     }
 console.log("TEST bsckend_request");

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
     value: true
@@ -7,7 +7,7 @@ exports.GenericDatasource = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _lodash = require("lodash");
+var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
@@ -24,8 +24,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
         if (url) {
             url = url.replace(/\/$/, '');
         }
-        console.log("instanceSettings.url: " + instanceSettings.url);
-        console.log("url: " + url);
         this.url = url;
         var key = instanceSettings.jsonData.measurementKey;
         if (key) {
@@ -51,7 +49,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
     // http://145.23.253.34/esmond/perfsonar/archive/4187d2d6f4344491be2962b509c57f83/throughput/averages/86400
 
     _createClass(GenericDatasource, [{
-        key: "dataset",
+        key: 'dataset',
         value: function dataset(target, response) {
             var data = [];
             _lodash2.default.each(response.data, function (p) {
@@ -63,7 +61,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             };
         }
     }, {
-        key: "get_dataset",
+        key: 'get_dataset',
         value: function get_dataset(options, target) {
             var _this = this;
 
@@ -87,7 +85,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             //         });
         }
     }, {
-        key: "query",
+        key: 'query',
         value: function query(options) {
             var _this2 = this;
 
@@ -135,14 +133,14 @@ var GenericDatasource = exports.GenericDatasource = function () {
             });
         }
     }, {
-        key: "testDatasource",
+        key: 'testDatasource',
         value: function testDatasource() {
             var backend_request = {
                 withCredentials: this.withCredentials,
                 headers: this.headers,
                 // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
                 //        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
-                url: this.url = "/esmond/perfsonar//",
+                url: this.url + "/esmond/perfsonar//",
                 method: 'GET'
             };
             console.log("TEST bsckend_request");
@@ -158,12 +156,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
             });
         }
     }, {
-        key: "annotationQuery",
+        key: 'annotationQuery',
         value: function annotationQuery(options) {
             return Promise.resolve([]);
         }
     }, {
-        key: "metricFindQuery",
+        key: 'metricFindQuery',
         value: function metricFindQuery(query) {
             var backend_request = {
                 withCredentials: this.withCredentials,
@@ -197,7 +195,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             });
         }
     }, {
-        key: "mapToTextValue",
+        key: 'mapToTextValue',
         value: function mapToTextValue(result) {
             return _lodash2.default.map(result.data, function (d, i) {
                 if (d && d.text && d.value) {
@@ -239,12 +237,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
         */
 
     }, {
-        key: "getTagKeys",
+        key: 'getTagKeys',
         value: function getTagKeys(options) {
             return Promise.resolve([]);
         }
     }, {
-        key: "getTagValues",
+        key: 'getTagValues',
         value: function getTagValues(options) {
             return Promise.resolve([]);
         }
