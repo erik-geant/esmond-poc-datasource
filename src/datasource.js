@@ -8,11 +8,12 @@ export class GenericDatasource {
     if (url) {
         url = url.replace(/\/$/, '');
     }
+    this.url = url;
     var key = instanceSettings.jsonData.measurementKey;
     if (key) {
         key = key.replace(/\/$/, '').replace(/^\//, '');
     }
-    this.url = url + "/esmond/perfsonar/archive/" + key + "/";
+    this.measurementKey = key;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -29,8 +30,7 @@ export class GenericDatasource {
 // http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
 
 // http://145.23.253.34/esmond/perfsonar/archive/248d16f1035f440aa1239d4a4bafd245/
-
-// remove trailing slashes
+// http://145.23.253.34/esmond/perfsonar/archive/4187d2d6f4344491be2962b509c57f83/throughput/averages/86400
 
   dataset(target, response) {
     var data = [];
@@ -115,21 +115,18 @@ targets = [
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url + '/',
+        // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
+        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
         method: 'GET'
     }
-console.log("**testDatasource");
-console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
-console.log("datasourceRequest response");
-console.log(rsp);
             if (rsp.status === 200) {
                 return {
                     status: "success",
                     message: "Data source is working",
                     title: "Success"
-                };
+                 };
         }
     });
   }
@@ -139,9 +136,36 @@ console.log(rsp);
   }
 
   metricFindQuery(query) {
-    return Promise.resolve(
-       [{text: "aaaa", value: "aaaa"}]
-    );
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        headers: this.headers,
+        // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
+        url: this.url + "/esmond/perfsonar/archive/" + this.measurementKey + "//",
+        method: 'GET'
+    };
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => {
+            if (rsp.status !== 200) {
+                return undefined;
+            }
+            var ts_types = ["throughput", "packet-count-sent", "packet-count-lost"];
+            var metrics = [];
+            _.each(rsp.data, m => {
+                _.each(m["event-types"], t => {
+                    if (ts_types.includes(t["event-type"])) {
+                        _.each(t.summaries, s => {
+                            metrics.push({
+                                text: m.destination + ", " + t["event-type"] + " [" + s["summary-window"] + "]",
+                                value: s.uri
+                            });
+                        });
+                    }
+                });
+            });
+console.log(metrics);
+            return metrics;
+//http://145.23.253.34/esmond/perfsonar/archive/
+        });
   }
 
   mapToTextValue(result) {
