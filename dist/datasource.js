@@ -51,6 +51,13 @@ var GenericDatasource = exports.GenericDatasource = function () {
     _createClass(GenericDatasource, [{
         key: 'dataset',
         value: function dataset(target, response) {
+
+            console.log("### handling dataset response");
+            console.log("target");
+            console.log(target);
+            console.log("response");
+            console.log(response);
+
             var data = [];
             _lodash2.default.each(response.data, function (p) {
                 data.push([p.ts, p.value]);

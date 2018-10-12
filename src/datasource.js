@@ -33,6 +33,13 @@ export class GenericDatasource {
 // http://145.23.253.34/esmond/perfsonar/archive/4187d2d6f4344491be2962b509c57f83/throughput/averages/86400
 
   dataset(target, response) {
+
+console.log("### handling dataset response");
+console.log("target");
+console.log(target);
+console.log("response");
+console.log(response);
+
     var data = [];
     _.each(response.data, p => {
         data.push([p.ts, p.value])
