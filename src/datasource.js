@@ -39,15 +39,16 @@ console.log("target");
 console.log(target);
 console.log("response");
 console.log(response);
-
     var data = [];
     _.each(response.data, p => {
         data.push([p.ts, p.value])
     });
-    return {
+var result = {
         target: target,
         datapoints: data 
     };
+console.log(result);
+return result;
   }
 
   get_dataset(options, target) {
