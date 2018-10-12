@@ -41,7 +41,7 @@ console.log("response");
 console.log(response);
     var data = [];
     _.each(response.data, p => {
-        data.push([p.val, p.ts])
+        data.push([p.val, 1000 * p.ts])
     });
 var result = {
         target: target,

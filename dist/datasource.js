@@ -59,7 +59,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
             console.log(response);
             var data = [];
             _lodash2.default.each(response.data, function (p) {
-                data.push([p.val, p.ts]);
+                data.push([p.val, 1000 * p.ts]);
             });
             var result = {
                 target: target,
