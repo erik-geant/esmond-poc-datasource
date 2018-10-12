@@ -8,6 +8,8 @@ export class GenericDatasource {
     if (url) {
         url = url.replace(/\/$/, '');
     }
+console.log("instanceSettings.url: " + instanceSettings.url);
+console.log("url: " + url);
     this.url = url;
     var key = instanceSettings.jsonData.measurementKey;
     if (key) {
@@ -120,6 +122,8 @@ targets = [
         url: this.url = "/esmond/perfsonar//",
         method: 'GET'
     }
+console.log("TEST bsckend_request");
+console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
             if (rsp.status === 200) {
