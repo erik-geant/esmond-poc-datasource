@@ -5,7 +5,7 @@ export class GenericDatasource {
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
     this.url = instanceSettings.url;
-    this.measurementArchiveHostname = instanceSettings.jsonData.measurementKey;
+    this.measurementArchiveHostname = instanceSettings.jsonData.maHostname;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
