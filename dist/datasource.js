@@ -153,7 +153,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
       var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url + "/grafana/timeseries",
+        url: this.url + "/grafana/metrics",
         method: 'POST',
         data: { hostname: this.measurementArchiveHostname }
       };
