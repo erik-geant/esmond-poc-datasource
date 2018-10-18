@@ -42,11 +42,20 @@ export class GenericDatasource {
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url + target,
-        method: 'GET'
-    }
+        url: this.url + '/grafana/timeseries',
+        method: 'POST',
+        data: {
+            hostname: this.measurementArchiveHostname,
+            tsurl: target
+        }
+    };
     return this.backendSrv.datasourceRequest(backend_request).then(
-        rsp => { return this.dataset(target, rsp); });
+        rsp => {
+            return {
+                target: target,
+                datapoints: rsp.data
+            };
+        });
   }
   
   query(options) {
