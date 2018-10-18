@@ -100,29 +100,21 @@ export class GenericDatasource {
   }
 
   testDatasource() {
-    return Promise.resolve({
-        status: "success",
-        message: "Data source is working",
-        title: "Success"
+    var backend_request = {
+        withCredentials: this.withCredentials,
+        url: this.url + '/grafana/version',
+        method: 'GET'
+    }
+    return this.backendSrv.datasourceRequest(backend_request).then(
+        rsp => {
+            if (rsp.status === 200) {
+                return {
+                    status: "success",
+                    message: "Data source is working",
+                    title: "Success"
+                 };
+        }
     });
-
-//    var backend_request = {
-//        withCredentials: this.withCredentials,
-//        headers: this.headers,
-//        // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
-//        url: this.url,
-//        method: 'GET'
-//    }
-//    return this.backendSrv.datasourceRequest(backend_request).then(
-//        rsp => {
-//            if (rsp.status === 200) {
-//                return {
-//                    status: "success",
-//                    message: "Data source is working",
-//                    title: "Success"
-//                 };
-//        }
-//    });
   }
 
   annotationQuery(options) {
