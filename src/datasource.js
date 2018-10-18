@@ -4,11 +4,8 @@ export class GenericDatasource {
 
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.type = instanceSettings.type;
-    var url = instanceSettings.url;
-    if (url) {
-        url = url.replace(/\/$/, '');
-    }
-    this.url = url;
+    this.url = instanceSettings.url;
+    this.measurementArchiveHostname = instanceSettings.jsonData.measurementKey;
     this.name = instanceSettings.name;
     this.q = $q;
     this.backendSrv = backendSrv;
@@ -16,6 +13,7 @@ export class GenericDatasource {
     this.withCredentials = instanceSettings.withCredentials;
     this.headers = {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
     };
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       this.headers['Authorization'] = instanceSettings.basicAuth;
@@ -120,30 +118,16 @@ export class GenericDatasource {
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        // HACK HACK: grafana removes 1 trailing slash & doesn't follow redirects
-        url: this.url + "/esmond/perfsonar/archive//",
-        method: 'GET'
+        url: this.url + "/grafana/timeseries",
+        method: 'POST',
+        data: { hostname: this.measurementArchiveHostname }
     };
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
             if (rsp.status !== 200) {
                 return undefined;
             }
-            var ts_types = ["throughput", "packet-count-sent", "packet-count-lost"];
-            var metrics = [];
-            _.each(rsp.data, m => {
-                _.each(m["event-types"], t => {
-                    if (ts_types.includes(t["event-type"])) {
-                        _.each(t.summaries, s => {
-                            metrics.push({
-                                text: m.destination + ", " + t["event-type"] + " [" + s["summary-window"] + "]",
-                                value: s.uri
-                            });
-                        });
-                    }
-                });
-            });
-            return metrics;
+            return rsp.data;
         });
   }
 
