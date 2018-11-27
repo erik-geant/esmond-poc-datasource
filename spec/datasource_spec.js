@@ -42,10 +42,8 @@ describe('GenericDatasource', function() {
         }
 
         var query_targets = [
-//            {target: 'packet-count-sent/aggregations/3600', type: 'timeserie'},
-//            {target: 'packet-count-sent/aggregations/86400', type: 'timeserie'}
-            {measurement_type: 'aabbcc'},
-            {measurement_type: 'ddeeff'}
+            {summary: {uri: 'aabbcc'}},
+            {summary: {uri: 'ddeeff'}}
         ]
 
         ctx.ds.query({targets: query_targets}).then(function(result) {

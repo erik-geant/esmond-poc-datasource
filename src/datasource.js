@@ -60,15 +60,19 @@ export class GenericDatasource {
   
   query(options) {
 
-   var targets = options.targets.filter(t => !t.hide);
-console.log(targets);
+   var targets = _.filter(options.targets, t => {
+     return !t.hide;
+   });
+   targets = _.filter(targets, t => {
+     return t.summary && t.summary.uri;
+   });
 
    var _request_data = {
        range: options.range,
        interval: options.interval,
        format: "json",
        maxDataPoints: options.maxDataPoints,
-       targets: _.map(targets, t => { return t.measurement_type })
+       targets: _.map(targets, t => { return t.summary.uri })
    };
 
     if (targets === undefined || targets.length == 0) {
@@ -80,15 +84,8 @@ console.log(targets);
         });
     }
 
-
-//    if (this.templateSrv.getAdhocFilters) {
-//      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-//    } else {
-//      query.adhocFilters = [];
-//    }
-
     var series_promises = _.map(targets, t => {
-        return this.get_dataset(_request_data, t.measurement_type)
+        return this.get_dataset(_request_data, t.summary.uri)
     });
     return Promise.all(series_promises).then(series_data => {
         return {
