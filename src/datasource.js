@@ -37,7 +37,7 @@ export class GenericDatasource {
     };
   }
 
-  get_dataset(options, target, metric) {
+  get_dataset(options, name, target, metric) {
 
     var backend_request = {
         withCredentials: this.withCredentials,
@@ -55,7 +55,7 @@ export class GenericDatasource {
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
             return {
-                target: target,
+                target: name,
                 datapoints: rsp.data
             };
         });
@@ -88,7 +88,11 @@ export class GenericDatasource {
     }
 
     var series_promises = _.map(targets, t => {
-        return this.get_dataset(_request_data, t.summary.uri, t.metric_type)
+        return this.get_dataset(
+          _request_data,
+          t.measurement_type + ":" + t.participants.text + ":" + t.metric_type + ":" + t.summary.text,
+          t.summary.uri,
+          t.metric_type)
     });
     return Promise.all(series_promises).then(series_data => {
         return {

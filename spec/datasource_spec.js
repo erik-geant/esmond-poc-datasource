@@ -42,15 +42,25 @@ describe('GenericDatasource', function() {
         }
 
         var query_targets = [
-            {summary: {uri: 'aabbcc'}},
-            {summary: {uri: 'ddeeff'}}
+            {
+              measurement_type: 'measurement type',
+              metric_type: 'metric type',
+              participants: {text: 'participants'},
+              summary: {uri: 'aabbcc', text: 'summary'}
+            },
+            {
+              measurement_type: 'measurement type',
+              metric_type: 'metric type',
+              participants: {text: 'participants'},
+              summary: {uri: 'ddeeff', text: 'summary'}
+            }
         ]
 
         ctx.ds.query({targets: query_targets}).then(function(result) {
             expect(result._request.data.targets).to.have.length(2);
 
             var series = result.data[0];
-            expect(series.target).to.equal('aabbcc');
+            expect(series.target).to.equal('measurement type:participants:metric type:summary');
             expect(series.datapoints).to.have.length(5);
             done();
         });
