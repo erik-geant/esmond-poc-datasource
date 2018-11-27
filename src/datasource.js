@@ -61,6 +61,7 @@ export class GenericDatasource {
   query(options) {
 
    var targets = options.targets.filter(t => !t.hide);
+console.log(targets);
 
    var _request_data = {
        range: options.range,
@@ -135,24 +136,25 @@ export class GenericDatasource {
       backend_request.url = this.url + "/grafana/participants";
       backend_request.data['measurement-type'] = query.measurement_type;
     } else if (query.query == 'metric types') {
-      var types = [
-        "standard-deviation",
-        "median",
-        "maximum",
-        "minimum",
-        "mode",
-        "percentile-75",
-        "percentile-25",
-        "percentile-95",
-        "variance",
-        "mean"
-     ]
-
-      return Promise.resolve(
-        _.map(types, t => {
-          return {text: t, value: t};
-        })
-      );
+      backend_request.url = this.url + "/grafana/metric-types";
+//      var types = [
+//        "standard-deviation",
+//        "median",
+//        "maximum",
+//        "minimum",
+//        "mode",
+//        "percentile-75",
+//        "percentile-25",
+//        "percentile-95",
+//        "variance",
+//        "mean"
+//     ]
+//
+//      return Promise.resolve(
+//        _.map(types, t => {
+//          return {text: t, value: t};
+//        })
+//      );
     } else if (query.query == 'summaries') {
       backend_request.url = this.url + "/grafana/summaries";
       backend_request.data['measurement-type'] = query.measurement_type;
