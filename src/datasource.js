@@ -37,7 +37,7 @@ export class GenericDatasource {
     };
   }
 
-  get_dataset(options, target) {
+  get_dataset(options, target, metric) {
 
     var backend_request = {
         withCredentials: this.withCredentials,
@@ -49,6 +49,9 @@ export class GenericDatasource {
             tsurl: target
         }
     };
+    if (metric) {
+      backend_request.data.metric = metric;
+    }
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
             return {
@@ -85,7 +88,7 @@ export class GenericDatasource {
     }
 
     var series_promises = _.map(targets, t => {
-        return this.get_dataset(_request_data, t.summary.uri)
+        return this.get_dataset(_request_data, t.summary.uri, t.metric_type)
     });
     return Promise.all(series_promises).then(series_data => {
         return {
