@@ -122,14 +122,47 @@ export class GenericDatasource {
   metricFindQuery(query) {
 console.log("metricFindQuery");
 console.log(query);
+
+
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        // url: this.url + "/grafana/metrics",
 	url: this.url + "/grafana/measurement-types",
         method: 'POST',
         data: { hostname: this.measurementArchiveHostname }
     };
+
+    if (query.query == 'measurement types') {
+      backend_request.url = this.url + "/grafana/measurement-types";
+    } else if (query.query == 'participants') {
+      backend_request.url = this.url + "/grafana/participants";
+      backend_request.data['measurement-type'] = query.measurement_type;
+    } else if (query.query == 'metric types') {
+      var types = [
+        "standard-deviation",
+        "median",
+        "maximum",
+        "minimum",
+        "mode",
+        "percentile-75",
+        "percentile-25",
+        "percentile-95",
+        "variance",
+        "mean"
+     ]
+
+      return Promise.resolve(
+        _.map(types, t => {
+          return {text: t, value: t};
+        })
+      );
+    } else if (query.query == 'summaries') {
+      backend_request.url = this.url + "/grafana/summaries";
+      backend_request.data['measurement-type'] = query.measurement_type;
+      backend_request.data['metadata-key']
+        = query.participants['metadata-key'] || '';
+    }
+
 console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
@@ -138,9 +171,33 @@ console.log(rsp);
             if (rsp.status !== 200) {
                 return undefined;
             }
-            return _.map(rsp.data, x => {
-                return {text: x, value: x};
-            })
+
+            var query_result = null;
+            
+            if (query.query == 'summaries') {
+              query_result = _.map(rsp.data, x => {
+                return {
+                  text: x.type + ":" + x.window,
+                  value: x
+                };
+              });
+            } else if (query.query == 'participants') {
+              query_result = _.map(rsp.data, x => {
+                return {
+                  text: x.source + "->" + x.destination,
+                  value: x
+                };
+              });
+            } else {
+              query_result = _.map(rsp.data, x => {
+                  return {text: x, value: x};
+              });
+            }
+
+console.log("query result for: " + query.query);
+console.log(query_result);
+
+            return query_result;
         });
   }
 

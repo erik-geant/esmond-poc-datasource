@@ -71,7 +71,15 @@ describe('GenericDatasource', function() {
             return data;
         }
 
-         ctx.ds.metricFindQuery('search').then(function(result) {
+         var query = {
+           query: 'measurement type',
+           measurement_type: 'abab',
+           participants: 'cdcd',
+           metric_type: 'efef',
+           summary: 'ghgh'
+         };
+console.log("ctx.ds: "+ ctx.ds);
+         ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('text 1');
             expect(result[0].value).to.equal('text 1');
@@ -99,7 +107,15 @@ describe('GenericDatasource', function() {
             return data;
         }
 
-        ctx.ds.metricFindQuery({target: null}).then(function(result) {
+         var query = {
+           query: 'measurement type',
+           measurement_type: 'abab',
+           participants: 'cdcd',
+           metric_type: 'efef',
+           summary: 'ghgh'
+         };
+ 
+        ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('metric_0');
             expect(result[0].value).to.equal('metric_0');
@@ -126,7 +142,16 @@ describe('GenericDatasource', function() {
             return data;
         }
 
-        ctx.ds.metricFindQuery('search').then(function(result) {
+
+         var query = {
+           query: 'measurement type',
+           measurement_type: 'abab',
+           participants: 'cdcd',
+           metric_type: 'efef',
+           summary: 'ghgh'
+         };
+
+        ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('search_0');
             expect(result[0].value).to.equal('search_0');
@@ -156,7 +181,16 @@ describe('GenericDatasource', function() {
             return data;
         }
 
-        ctx.ds.metricFindQuery('').then(function(result) {
+
+         var query = {
+           query: 'measurement type',
+           measurement_type: 'abab',
+           participants: 'cdcd',
+           metric_type: 'efef',
+           summary: 'ghgh'
+         };
+
+        ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('metric_0');
             expect(result[0].value).to.equal('metric_0');
@@ -184,7 +218,16 @@ describe('GenericDatasource', function() {
             return data;
         }
 
-        ctx.ds.metricFindQuery().then(function(result) {
+
+         var query = {
+           query: 'measurement type',
+           measurement_type: 'abab',
+           participants: 'cdcd',
+           metric_type: 'efef',
+           summary: 'ghgh'
+         };
+
+        ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('metric_0');
             expect(result[0].value).to.equal('metric_0');
@@ -211,7 +254,16 @@ describe('GenericDatasource', function() {
             return data;
         }
 
-        ctx.ds.metricFindQuery('search').then(function(result) {
+
+         var query = {
+           query: 'measurement type',
+           measurement_type: 'abab',
+           participants: 'cdcd',
+           metric_type: 'efef',
+           summary: 'ghgh'
+         };
+
+        ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('search_0');
             expect(result[0].value).to.equal('search_0');
