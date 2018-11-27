@@ -169,15 +169,17 @@ export class GenericDatasource {
             
             if (query.query == 'summaries') {
               query_result = _.map(rsp.data, x => {
+                x.text = x.type + ":" + x.window;
                 return {
-                  text: x.type + ":" + x.window,
+                  text: x.text,
                   value: x
                 };
               });
             } else if (query.query == 'participants') {
               query_result = _.map(rsp.data, x => {
+                x.text = x.source + "->" + x.destination;
                 return {
-                  text: x.source + "->" + x.destination,
+                  text: x.text,
                   value: x
                 };
               });
