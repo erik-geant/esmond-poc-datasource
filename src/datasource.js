@@ -60,18 +60,16 @@ export class GenericDatasource {
   
   query(options) {
 
-   var targets = _.filter(options.targets, t => {
-       return !t.type || t.type == 'timeserie'
-   });
-   targets = targets.filter(t => !t.hide);
+   var targets = options.targets.filter(t => !t.hide);
 
-    var _request_data = {
-        range: options.range,
-        interval: options.interval,
-        format: "json",
-        maxDataPoints: options.maxDataPoints,
-        targets: _.map(targets, t => { return t.target })
-    };
+   var _request_data = {
+       range: options.range,
+       interval: options.interval,
+       format: "json",
+       maxDataPoints: options.maxDataPoints,
+       targets: _.map(targets, t => { return t.measurement_type })
+   };
+
     if (targets === undefined || targets.length == 0) {
         return new Promise( (res, rej) => {
             return res({
@@ -89,7 +87,7 @@ export class GenericDatasource {
 //    }
 
     var series_promises = _.map(targets, t => {
-        return this.get_dataset(_request_data, t.target)
+        return this.get_dataset(_request_data, t.measurement_type)
     });
     return Promise.all(series_promises).then(series_data => {
         return {
@@ -122,19 +120,27 @@ export class GenericDatasource {
   }
 
   metricFindQuery(query) {
+console.log("metricFindQuery");
+console.log(query);
     var backend_request = {
         withCredentials: this.withCredentials,
         headers: this.headers,
-        url: this.url + "/grafana/metrics",
+        // url: this.url + "/grafana/metrics",
+	url: this.url + "/grafana/measurement-types",
         method: 'POST',
         data: { hostname: this.measurementArchiveHostname }
     };
+console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
+console.log("rsp");
+console.log(rsp);
             if (rsp.status !== 200) {
                 return undefined;
             }
-            return rsp.data;
+            return _.map(rsp.data, x => {
+                return {text: x, value: x};
+            })
         });
   }
 

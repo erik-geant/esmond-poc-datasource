@@ -42,15 +42,17 @@ describe('GenericDatasource', function() {
         }
 
         var query_targets = [
-            {target: 'packet-count-sent/aggregations/3600', type: 'timeserie'},
-            {target: 'packet-count-sent/aggregations/86400', type: 'timeserie'}
+//            {target: 'packet-count-sent/aggregations/3600', type: 'timeserie'},
+//            {target: 'packet-count-sent/aggregations/86400', type: 'timeserie'}
+            {measurement_type: 'aabbcc'},
+            {measurement_type: 'ddeeff'}
         ]
 
         ctx.ds.query({targets: query_targets}).then(function(result) {
             expect(result._request.data.targets).to.have.length(2);
 
             var series = result.data[0];
-            expect(series.target).to.equal('packet-count-sent/aggregations/3600');
+            expect(series.target).to.equal('aabbcc');
             expect(series.datapoints).to.have.length(5);
             done();
         });
@@ -61,11 +63,7 @@ describe('GenericDatasource', function() {
             return ctx.$q.when({
                 status: 200,
                 _request: request,
-                data: [
-                    { text: 'text 1', value: 'value 1' },
-                    { text: 'text 2', value: 'value 2' },
-                    { text: 'text 3', value: 'value 3' }
-                ]
+                data: ['text 1', 'text 2', 'text 3']
             });
         };
 
@@ -76,7 +74,7 @@ describe('GenericDatasource', function() {
          ctx.ds.metricFindQuery('search').then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('text 1');
-            expect(result[0].value).to.equal('value 1');
+            expect(result[0].value).to.equal('text 1');
             done();
         });
  
