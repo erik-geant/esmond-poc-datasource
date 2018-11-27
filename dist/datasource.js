@@ -56,7 +56,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
     }
   }, {
     key: 'get_dataset',
-    value: function get_dataset(options, target) {
+    value: function get_dataset(options, name, target, metric) {
 
       var backend_request = {
         withCredentials: this.withCredentials,
@@ -68,9 +68,12 @@ var GenericDatasource = exports.GenericDatasource = function () {
           tsurl: target
         }
       };
+      if (metric) {
+        backend_request.data.metric = metric;
+      }
       return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
         return {
-          target: target,
+          target: name,
           datapoints: rsp.data
         };
       });
@@ -80,8 +83,11 @@ var GenericDatasource = exports.GenericDatasource = function () {
     value: function query(options) {
       var _this = this;
 
-      var targets = options.targets.filter(function (t) {
+      var targets = _lodash2.default.filter(options.targets, function (t) {
         return !t.hide;
+      });
+      targets = _lodash2.default.filter(targets, function (t) {
+        return t.summary && t.summary.uri;
       });
 
       var _request_data = {
@@ -90,7 +96,7 @@ var GenericDatasource = exports.GenericDatasource = function () {
         format: "json",
         maxDataPoints: options.maxDataPoints,
         targets: _lodash2.default.map(targets, function (t) {
-          return t.measurement_type;
+          return t.summary.uri;
         })
       };
 
@@ -103,14 +109,8 @@ var GenericDatasource = exports.GenericDatasource = function () {
         });
       }
 
-      //    if (this.templateSrv.getAdhocFilters) {
-      //      query.adhocFilters = this.templateSrv.getAdhocFilters(this.name);
-      //    } else {
-      //      query.adhocFilters = [];
-      //    }
-
       var series_promises = _lodash2.default.map(targets, function (t) {
-        return _this.get_dataset(_request_data, t.measurement_type);
+        return _this.get_dataset(_request_data, t.measurement_type + ":" + t.participants.text + ":" + t.metric_type + ":" + t.summary.text, t.summary.uri, t.metric_type);
       });
       return Promise.all(series_promises).then(function (series_data) {
         return {
@@ -145,8 +145,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
   }, {
     key: 'metricFindQuery',
     value: function metricFindQuery(query) {
-      console.log("metricFindQuery");
-      console.log(query);
 
       var backend_request = {
         withCredentials: this.withCredentials,
@@ -162,21 +160,32 @@ var GenericDatasource = exports.GenericDatasource = function () {
         backend_request.url = this.url + "/grafana/participants";
         backend_request.data['measurement-type'] = query.measurement_type;
       } else if (query.query == 'metric types') {
-        var types = ["standard-deviation", "median", "maximum", "minimum", "mode", "percentile-75", "percentile-25", "percentile-95", "variance", "mean"];
-
-        return Promise.resolve(_lodash2.default.map(types, function (t) {
-          return { text: t, value: t };
-        }));
+        backend_request.url = this.url + "/grafana/metric-types";
+        //      var types = [
+        //        "standard-deviation",
+        //        "median",
+        //        "maximum",
+        //        "minimum",
+        //        "mode",
+        //        "percentile-75",
+        //        "percentile-25",
+        //        "percentile-95",
+        //        "variance",
+        //        "mean"
+        //     ]
+        //
+        //      return Promise.resolve(
+        //        _.map(types, t => {
+        //          return {text: t, value: t};
+        //        })
+        //      );
       } else if (query.query == 'summaries') {
         backend_request.url = this.url + "/grafana/summaries";
         backend_request.data['measurement-type'] = query.measurement_type;
         backend_request.data['metadata-key'] = query.participants['metadata-key'] || '';
       }
 
-      console.log(backend_request);
       return this.backendSrv.datasourceRequest(backend_request).then(function (rsp) {
-        console.log("rsp");
-        console.log(rsp);
         if (rsp.status !== 200) {
           return undefined;
         }
@@ -185,15 +194,17 @@ var GenericDatasource = exports.GenericDatasource = function () {
 
         if (query.query == 'summaries') {
           query_result = _lodash2.default.map(rsp.data, function (x) {
+            x.text = x.type + ":" + x.window;
             return {
-              text: x.type + ":" + x.window,
+              text: x.text,
               value: x
             };
           });
         } else if (query.query == 'participants') {
           query_result = _lodash2.default.map(rsp.data, function (x) {
+            x.text = x.source + "->" + x.destination;
             return {
-              text: x.source + "->" + x.destination,
+              text: x.text,
               value: x
             };
           });
@@ -202,9 +213,6 @@ var GenericDatasource = exports.GenericDatasource = function () {
             return { text: x, value: x };
           });
         }
-
-        console.log("query result for: " + query.query);
-        console.log(query_result);
 
         return query_result;
       });
