@@ -120,9 +120,6 @@ export class GenericDatasource {
   }
 
   metricFindQuery(query) {
-console.log("metricFindQuery");
-console.log(query);
-
 
     var backend_request = {
         withCredentials: this.withCredentials,
@@ -163,11 +160,8 @@ console.log(query);
         = query.participants['metadata-key'] || '';
     }
 
-console.log(backend_request);
     return this.backendSrv.datasourceRequest(backend_request).then(
         rsp => {
-console.log("rsp");
-console.log(rsp);
             if (rsp.status !== 200) {
                 return undefined;
             }
@@ -193,9 +187,6 @@ console.log(rsp);
                   return {text: x, value: x};
               });
             }
-
-console.log("query result for: " + query.query);
-console.log(query_result);
 
             return query_result;
         });

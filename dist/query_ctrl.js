@@ -25,16 +25,29 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
 
     var _this = _possibleConstructorReturn(this, (GenericDatasourceQueryCtrl.__proto__ || Object.getPrototypeOf(GenericDatasourceQueryCtrl)).call(this, $scope, $injector));
 
+    _this.unselected_measurement_type = 'measurement type';
+    _this.unselected_participants = 'participants';
+    _this.unselected_metric_type = 'metric type';
+    _this.unselected_summary = 'summary';
+
     _this.scope = $scope;
-    _this.target.target = _this.target.target || 'select metric';
-    _this.target.type = _this.target.type || 'timeserie';
+    _this.target.measurement_type = _this.target.measurement_type || _this.unselected_measurement_type;
+    _this.target.participants = _this.target.participants || _this.unselected_participants;
+    _this.target.metric_type = _this.target.metric_type || _this.unselected_metric_type;
+    _this.target.summary = _this.target.summary || _this.unselected_summary;
     return _this;
   }
 
   _createClass(GenericDatasourceQueryCtrl, [{
     key: 'getOptions',
     value: function getOptions(query) {
-      return this.datasource.metricFindQuery(query || '');
+      return this.datasource.metricFindQuery({
+        query: query,
+        measurement_type: this.target.measurement_type,
+        participants: this.target.participants,
+        metric_type: this.target.metric_type,
+        summary: this.target.summary
+      });
     }
   }, {
     key: 'toggleEditorMode',
@@ -43,7 +56,17 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
     }
   }, {
     key: 'onChangeInternal',
-    value: function onChangeInternal() {
+    value: function onChangeInternal(option) {
+      if (option == 'measurement types') {
+        this.target.participants = this.unselected_participants;
+        this.target.metric_type = this.unselected_metric_type;
+        this.target.summary = this.unselected_summary;
+      } else if (option == 'participants') {
+        this.target.metric_type = this.unselected_metric_type;
+        this.target.summary = this.unselected_summary;
+      } else if (option == 'metric types') {
+        this.target.summary = this.unselected_summary;
+      }
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
     }
   }]);

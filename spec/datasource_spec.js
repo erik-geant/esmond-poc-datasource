@@ -78,7 +78,6 @@ describe('GenericDatasource', function() {
            metric_type: 'efef',
            summary: 'ghgh'
          };
-console.log("ctx.ds: "+ ctx.ds);
          ctx.ds.metricFindQuery(query).then(function(result) {
             expect(result).to.have.length(3);
             expect(result[0].text).to.equal('text 1');
