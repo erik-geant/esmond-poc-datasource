@@ -20,11 +20,6 @@ export class GenericDatasource {
     }
   }
 
-// http://158.125.250.70/esmond/perfsonar/archive/010646242f574ca3b1d191d9b563ceb1/packet-count-sent/aggregations/3600
-// http://145.23.253.34/esmond/perfsonar/archive/248d16f1035f440aa1239d4a4bafd245/
-// http://145.23.253.34/esmond/perfsonar/archive/4187d2d6f4344491be2962b509c57f83/throughput/averages/86400
-//http://145.23.253.34/esmond/perfsonar/archive/
-
   dataset(target, response) {
 
     var data = [];
@@ -141,24 +136,6 @@ export class GenericDatasource {
       backend_request.data['measurement-type'] = query.measurement_type;
     } else if (query.query == 'metric types') {
       backend_request.url = this.url + "/grafana/metric-types";
-//      var types = [
-//        "standard-deviation",
-//        "median",
-//        "maximum",
-//        "minimum",
-//        "mode",
-//        "percentile-75",
-//        "percentile-25",
-//        "percentile-95",
-//        "variance",
-//        "mean"
-//     ]
-//
-//      return Promise.resolve(
-//        _.map(types, t => {
-//          return {text: t, value: t};
-//        })
-//      );
     } else if (query.query == 'summaries') {
       backend_request.url = this.url + "/grafana/summaries";
       backend_request.data['measurement-type'] = query.measurement_type;
@@ -210,35 +187,6 @@ export class GenericDatasource {
       return { text: d, value: d };
     });
   }
-
-/*
-  doRequest(options) {
-    options.withCredentials = this.withCredentials;
-    options.headers = this.headers;
-
-    return this.backendSrv.datasourceRequest(options);
-  }
-
-  buildQueryParameters(options) {
-    //remove placeholder targets
-    options.targets = _.filter(options.targets, target => {
-      return target.target !== 'select metric';
-    });
-
-    var targets = _.map(options.targets, target => {
-      return {
-        target: this.templateSrv.replace(target.target, options.scopedVars, 'regex'),
-        refId: target.refId,
-        hide: target.hide,
-        type: target.type || 'timeserie'
-      };
-    });
-
-    options.targets = targets;
-
-    return options;
-  }
-*/
 
   getTagKeys(options) {
     return Promise.resolve([]);
