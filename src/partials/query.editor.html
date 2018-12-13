@@ -20,20 +20,20 @@
   </div>
 
   <div class="gf-form">
-    <gf-form-dropdown model="ctrl.target.metric_type"
-      allow-custom="true"
-      lookup-text="true"
-      get-options="ctrl.getOptions('metric types')"
-      on-change="ctrl.onChangeInternal('metric types')">
-    </gf-form-dropdown>
-  </div>
-
-  <div class="gf-form">
     <gf-form-dropdown model="ctrl.target.summary"
       allow-custom="true"
       lookup-text="true"
       get-options="ctrl.getOptions('summaries')"
       on-change="ctrl.onChangeInternal('summaries')">
+    </gf-form-dropdown>
+  </div>
+
+  <div class="gf-form">
+    <gf-form-dropdown model="ctrl.target.metric_type"
+      allow-custom="true"
+      lookup-text="true"
+      get-options="ctrl.getOptions('metric types')"
+      on-change="ctrl.onChangeInternal('metric types')">
     </gf-form-dropdown>
   </div>
 
