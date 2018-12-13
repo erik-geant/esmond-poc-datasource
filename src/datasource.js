@@ -139,8 +139,13 @@ export class GenericDatasource {
     } else if (query.query == 'summaries') {
       backend_request.url = this.url + "/grafana/summaries";
       backend_request.data['measurement-type'] = query.measurement_type;
-      backend_request.data['metadata-key']
-        = query.participants['metadata-key'] || '';
+      var metadata_key = '';
+      if (query.participants.value) {
+        metadata_key = query.participants.value['metadata-key'];
+      } else {
+        metadata_key = query.participants['metadata-key'];
+      }
+      backend_request.data['metadata-key'] = metadata_key || '';
     }
 
     return this.backendSrv.datasourceRequest(backend_request).then(
