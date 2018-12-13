@@ -64,8 +64,8 @@ var GenericDatasourceQueryCtrl = exports.GenericDatasourceQueryCtrl = function (
       } else if (option == 'participants') {
         this.target.metric_type = this.unselected_metric_type;
         this.target.summary = this.unselected_summary;
-      } else if (option == 'metric types') {
-        this.target.summary = this.unselected_summary;
+      } else if (option == 'summaries') {
+        this.target.metric_type = this.unselected_metric_type;
       }
       this.panelCtrl.refresh(); // Asks the panel to refresh data.
     }
